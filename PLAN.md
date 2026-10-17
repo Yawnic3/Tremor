@@ -14,7 +14,7 @@ FastAPI/Pydantic: typed OpenAPI and validation; uvicorn: ASGI server; httpx: bou
 
 ## Phases and acceptance checklist
 - [x] 1. Scaffolding: health endpoint, empty map, Compose, CI, lint/type/test commands; start app and pass checks; commit. Docker execution is blocked by missing Docker; native equivalent used.
-- [ ] 2. Events: idempotent USGS/NWS adapters, filters and API, failure/rate-limit handling, map events; tests and running-app checks; commit.
+- [x] 2. Events: idempotent USGS/NWS adapters, filters and API, failure/rate-limit handling, map events; tests and running-app checks; commit.
 - [ ] 3. Exposure: 50 curated US-listed companies, provenance/confidence, spatial matching, ranked panel and facility display; tests and running-app checks; commit.
 - [ ] 4. Prices: swappable provider, persistent cache, CSV import/demo distinction, event-marked chart; tests and running-app checks; commit.
 - [ ] 5. Analytics: known-answer market-model tests, aggregation and statistical honesty, historical UI; tests and running-app checks; commit.
@@ -33,3 +33,5 @@ FastAPI/Pydantic: typed OpenAPI and validation; uvicorn: ASGI server; httpx: bou
 Plan created before application code. Each phase records actual checks and any blocked criteria here.
 
 Phase 1: backend pytest, ruff, mypy and frontend test/lint/build passed; API health and Vite serve checked. TestClient requires an unsandboxed local socket on this host. npm audit found vulnerable initial MapLibre/Vitest versions; upgraded to MapLibre 6.14 and Vitest 5.0.5 (zero reported vulnerabilities). Git ignores cover secrets, environments, caches, builds, logs and runtime data; Docker context has matching exclusions.
+
+Phase 2: 5 backend fixture/API tests cover normalization, idempotency, filters and upstream failure cooldown; frontend test/lint/build and backend ruff/mypy pass. Seeded app runs on localhost. USGS feed and NWS official API docs verified 2026-10-17; fetches cached 15 minutes, 429/failures retain existing data, no busy retries. Demo and observed events are separate modes. Sources: https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php and https://www.weather.gov/documentation/services-web-API (free/open government data, NWS nonpublic rate limits and User-Agent requirement). Basemap uses CARTO/OSM with built-in attribution; external network required.
