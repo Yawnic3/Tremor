@@ -1,0 +1,18 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    ports: ["8000:8000"]
+    volumes: ["eventmap-data:/app/data/runtime"]
+    env_file: .env
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    environment:
+      API_PROXY: http://api:8000
+    ports: ["5173:5173"]
+    depends_on: [api]
+volumes:
+  eventmap-data:
