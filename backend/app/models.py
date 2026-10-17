@@ -3,7 +3,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, Field, HttpUrl, field_validator
 
-EventType = Literal['earthquake', 'fire', 'severe_weather', 'strike', 'port_closure', 'protest']
+EventType = Literal["earthquake", "fire", "severe_weather", "strike", "port_closure", "protest"]
 
 
 class Event(BaseModel):
@@ -18,23 +18,23 @@ class Event(BaseModel):
     source: str
     url: HttpUrl
     region: str
-    description: str = ''
+    description: str = ""
     raw: dict[str, Any] = Field(default_factory=dict)
     synthetic: bool = False
 
-    @field_validator('start', 'end')
+    @field_validator("start", "end")
     @classmethod
     def timezone_required(cls, value: datetime | None) -> datetime | None:
         if value is not None and value.tzinfo is None:
-            raise ValueError('Timezone required')
+            raise ValueError("Timezone required")
         return value
 
 
 def region_for(lat: float, lon: float) -> str:
     if not (24 <= lat <= 50 and -125 <= lon <= -66):
-        return 'Other'
+        return "Other"
     if lon < -114:
-        return 'US West'
+        return "US West"
     if lon < -95:
-        return 'US Central'
-    return 'US East'
+        return "US Central"
+    return "US East"

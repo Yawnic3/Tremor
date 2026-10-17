@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Tremor · Methodology & limitations</title>
+    <style>
+      body {
+        font:
+          16px/1.8 system-ui,
+          sans-serif;
+        background: #f5f7f1;
+        color: #294338;
+        margin: 0;
+      }
+      main {
+        max-width: 780px;
+        margin: 50px auto;
+        padding: 35px;
+        background: white;
+        border: 1px solid #dfe6d9;
+        border-radius: 12px;
+      }
+      a {
+        color: #38745c;
+      }
+      h1 {
+        line-height: 1.2;
+        font-size: 36px;
+      }
+      h2 {
+        font-size: 21px;
+        margin-top: 36px;
+      }
+      small {
+        color: #62785b;
+      }
+      .notice {
+        padding: 16px;
+        background: #f7f0df;
+        border-left: 3px solid #bd9d61;
+      }
+      @media (max-width: 700px) {
+        main {
+          margin: 15px;
+          padding: 24px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <a href="/">← Tremor event explorer</a>
+      <p><small>RESEARCH NOTES · VERSION 0.1</small></p>
+      <h1>Methodology & limitations</h1>
+      <p class="notice">
+        For research and education. Not financial advice. Correlation is not
+        causation. Historical reactions do not predict future returns.
+      </p>
+      <h2>Exposure is a proximity screen</h2>
+      <p>
+        For each event we find headquarters within a configurable radius.
+        Defaults: earthquake 150 km, fire 50 km, severe weather 300 km, strike
+        75 km, port closure 120 km, protest 30 km. Haversine distances use a
+        6,371 km Earth radius. Facility scores are weight × max(0, 1 − distance
+        / radius), summed per company and capped at one. Unknown weights use a
+        conservative 0.2 proxy. Scores are low below 0.3, moderate below 0.6,
+        high otherwise. Confidence measures data quality separately.
+      </p>
+      <p>
+        The initial 50-company dataset contains headquarters, not a
+        comprehensive operating or supply-chain footprint. Coordinates are
+        approximate. Each record includes corporate evidence links and review
+        status. An unreviewed corporate URL is a lead, not verified facility
+        evidence. No match does not mean no exposure.
+      </p>
+      <h2>Market-model event study</h2>
+      <p>
+        Daily simple returns are close(t) / close(t−1) − 1, using adjusted
+        closes for both company and SPY benchmark. Fit r(company) = alpha + beta
+        × r(SPY) + error by ordinary least squares over trading days −140
+        through −21 (120 returns). Estimate abnormal returns as actual minus
+        expected returns. Sum them to calculate cumulative abnormal returns
+        (CAR) over [−1,+1], [0,+5], and [0,+20]. CAR is a sum, not a compounded
+        portfolio return.
+      </p>
+      <p>
+        Day zero is the first supplied benchmark date on or after the UTC event
+        date. After-market-close timing is not modeled. Require complete company
+        observations on all benchmark dates from −141 through +20, at least 120
+        estimation returns, a varying benchmark, and matching synthetic/observed
+        status. Reject unexplained benchmark gaps longer than seven days. This
+        is not a complete exchange-calendar audit.
+      </p>
+      <h2>Historical aggregation and uncertainty</h2>
+      <p>
+        Use earlier events of the same type and coarse region (US West west of
+        −114°, Central west of −95°, East otherwise, within the contiguous-US
+        bounding rectangle). Require 42 calendar days between selected events to
+        reduce overlap. Average company CARs within each event, then equally
+        average event means. Company observations are reported separately from
+        the number of events.
+      </p>
+      <p>
+        Standard error is the sample standard deviation of event means divided
+        by sqrt(n). Two-sided 95% Student-t confidence intervals use
+        conservative tabulated critical values. At least five events and nonzero
+        estimated variability are necessary to show exploratory significance.
+        This is a display threshold, not a guarantee of statistical power.
+        Intervals assume independence, are not adjusted for multiple testing,
+        and do not establish causality.
+      </p>
+      <h2>Source caveats</h2>
+      <p>
+        USGS earthquakes are observed point records. NWS alert polygons become
+        approximate vertex centroids; alerts without geometry are omitted. Broad
+        hazard geometry is not intersected with facilities. NASA FIRMS thermal
+        anomalies are not confirmed fire damage; severity 2 is an unknown-impact
+        display default. GDELT point records are unverified news mentions:
+        search terms do not prove event type, retrieval timestamps do not
+        identify incident time, and these records are excluded from studies.
+        News HTML is retained as raw provenance but never rendered.
+      </p>
+      <p>
+        Illustrative mode uses fictional events and deterministic synthetic
+        prices on a weekday calendar that includes holidays. These are not
+        market observations. Observed price data must be cached separately.
+        Alpha Vantage free compact daily data is unadjusted and usually too
+        short for these studies; it is suitable for a labeled chart, not this
+        analytics method. Import licensed adjusted closes for companies and SPY
+        to calculate observed studies.
+      </p>
+      <h2>Limits of inference</h2>
+      <p>
+        Current-company survivorship, HQ-only coverage, selection bias,
+        uncertain geocoding, coarse regions, after-close timing, overlapping or
+        correlated events, unrelated earnings/news, split/dividend adjustment
+        errors, and incomplete histories can dominate results. Studies are
+        descriptive research tools. Neither proximity nor historical CAR should
+        be treated as a prediction or a recommendation.
+      </p>
+      <h2>Source references</h2>
+      <p>
+        <a href="https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php"
+          >USGS feeds</a
+        >
+        ·
+        <a href="https://www.weather.gov/documentation/services-web-API"
+          >NWS API</a
+        >
+        ·
+        <a href="https://firms.modaps.eosdis.nasa.gov/api/area/">NASA FIRMS</a>
+        ·
+        <a href="https://blog.gdeltproject.org/gdelt-geo-2-0-api-debuts/amp/"
+          >GDELT GEO</a
+        >
+        · <a href="https://www.alphavantage.co/documentation/">Alpha Vantage</a>
+      </p>
+    </main>
+  </body>
+</html>

@@ -6,6 +6,11 @@ services:
     ports: ["8000:8000"]
     volumes: ["tremor-data:/app/data/runtime"]
     env_file: .env
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
   web:
     build:
       context: .
@@ -13,7 +18,9 @@ services:
     environment:
       API_PROXY: http://api:8000
     ports: ["5173:5173"]
-    depends_on: [api]
+    depends_on:
+      api:
+        condition: service_healthy
   scheduler:
     build:
       context: .

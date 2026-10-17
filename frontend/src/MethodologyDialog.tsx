@@ -1,6 +1,72 @@
-import { useEffect, useRef } from 'react';
-export function MethodologyDialog({onClose}:{onClose:()=>void}){
- const ref=useRef<HTMLDialogElement>(null);
- useEffect(()=>{const previous=document.activeElement as HTMLElement|null;ref.current?.showModal();return()=>previous?.focus()},[]);
- return <dialog ref={ref} className="method-dialog" onClose={onClose}><form method="dialog"><button className="close">Close ×</button></form><div className="eyebrow">RESEARCH NOTES</div><h2>Methodology & limitations</h2><h3>1. Geographic exposure</h3><p>Facilities within a type-specific radius are scored by weight × (1 − distance / radius), summed by company and capped at 1. Radii: earthquakes 150 km, fires 50 km, severe weather 300 km, strikes 75 km, ports 120 km, protests 30 km. All current locations are headquarters proxies with unknown asset weights (0.2 assumed), not comprehensive operating footprints. Low/moderate/high scores begin at 0/0.3/0.6. Confidence is separate from exposure strength.</p><h3>2. Event study</h3><p>Daily simple adjusted-close returns are fitted to an intercept and SPY returns using OLS over trading days −140 through −21 (120 returns). Abnormal returns equal actual minus fitted returns. CAR sums abnormal returns over [−1,+1], [0,+5], [0,+20]. We require all benchmark dates and full +20 coverage.</p><p>Day zero is the first benchmark date on or after the UTC event date. After-close event timing is not modeled. The benchmark's supplied dates define the trading calendar; gaps longer than seven days are rejected. Data adjustment and calendar completeness require independent validation.</p><h3>3. Historical aggregation</h3><p>Earlier same-type events in the same coarse region are selected, at least 42 days from the selected event and each other. Company CARs are averaged within each event, then event means are averaged. Student-t confidence intervals use conservative tabulated 95% critical values. Fewer than five events, zero variability, or missing prices cannot support a significance claim. Intervals are exploratory and uncorrected for multiple comparisons.</p><h3>4. Data quality</h3><p>Demo events and prices are synthetic. Observed USGS/NWS records retain provenance. NWS polygon vertex centroids approximate locations; zone-only alerts are omitted. FIRMS hotspots may not be wildfires. GDELT locations are unverified news mentions, use retrieval time, and are excluded from studies. Severity values are display heuristics and are not comparable physical measures.</p><p>HQ-only exposure, incomplete coverage, current-company survivorship, correlated incidents, contemporaneous news, coarse region bins, geocoding error and selection bias limit conclusions. Historical association is not causation or a prediction. This tool is for research and education, not financial advice.</p><a href="/METHODOLOGY.md" target="_blank" rel="noreferrer">Full methodology ↗</a></dialog>
+import { useEffect, useRef } from "react";
+export function MethodologyDialog({ onClose }: { onClose: () => void }) {
+  const ref = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    const previous = document.activeElement as HTMLElement | null;
+    ref.current?.showModal();
+    return () => previous?.focus();
+  }, []);
+  return (
+    <dialog ref={ref} className="method-dialog" onClose={onClose}>
+      <form method="dialog">
+        <button className="close">Close ×</button>
+      </form>
+      <div className="eyebrow">RESEARCH NOTES</div>
+      <h2>Methodology & limitations</h2>
+      <h3>1. Geographic exposure</h3>
+      <p>
+        Facilities within a type-specific radius are scored by weight × (1 −
+        distance / radius), summed by company and capped at 1. Radii:
+        earthquakes 150 km, fires 50 km, severe weather 300 km, strikes 75 km,
+        ports 120 km, protests 30 km. All current locations are headquarters
+        proxies with unknown asset weights (0.2 assumed), not comprehensive
+        operating footprints. Low/moderate/high scores begin at 0/0.3/0.6.
+        Confidence is separate from exposure strength.
+      </p>
+      <h3>2. Event study</h3>
+      <p>
+        Daily simple adjusted-close returns are fitted to an intercept and SPY
+        returns using OLS over trading days −140 through −21 (120 returns).
+        Abnormal returns equal actual minus fitted returns. CAR sums abnormal
+        returns over [−1,+1], [0,+5], [0,+20]. We require all benchmark dates
+        and full +20 coverage.
+      </p>
+      <p>
+        Day zero is the first benchmark date on or after the UTC event date.
+        After-close event timing is not modeled. The benchmark's supplied dates
+        define the trading calendar; gaps longer than seven days are rejected.
+        Data adjustment and calendar completeness require independent
+        validation.
+      </p>
+      <h3>3. Historical aggregation</h3>
+      <p>
+        Earlier same-type events in the same coarse region are selected, at
+        least 42 days from the selected event and each other. Company CARs are
+        averaged within each event, then event means are averaged. Student-t
+        confidence intervals use conservative tabulated 95% critical values.
+        Fewer than five events, zero variability, or missing prices cannot
+        support a significance claim. Intervals are exploratory and uncorrected
+        for multiple comparisons.
+      </p>
+      <h3>4. Data quality</h3>
+      <p>
+        Demo events and prices are synthetic. Observed USGS/NWS records retain
+        provenance. NWS polygon vertex centroids approximate locations;
+        zone-only alerts are omitted. FIRMS hotspots may not be wildfires. GDELT
+        locations are unverified news mentions, use retrieval time, and are
+        excluded from studies. Severity values are display heuristics and are
+        not comparable physical measures.
+      </p>
+      <p>
+        HQ-only exposure, incomplete coverage, current-company survivorship,
+        correlated incidents, contemporaneous news, coarse region bins,
+        geocoding error and selection bias limit conclusions. Historical
+        association is not causation or a prediction. This tool is for research
+        and education, not financial advice.
+      </p>
+      <a href="/methodology.html" target="_blank" rel="noreferrer">
+        Full methodology ↗
+      </a>
+    </dialog>
+  );
 }

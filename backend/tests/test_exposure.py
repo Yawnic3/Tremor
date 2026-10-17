@@ -19,12 +19,12 @@ def test_distance():
 
 
 def test_ranking(tmp_path, monkeypatch):
-    monkeypatch.setenv('EVENTMAP_DB', str(tmp_path / 'test.db'))
+    monkeypatch.setenv("TREMOR_DB", str(tmp_path / "test.db"))
     seed()
-    result = match(event_detail('demo:0'))
-    assert any(e.ticker == 'AAPL' for e in result)
+    result = match(event_detail("demo:0"))
+    assert any(e.ticker == "AAPL" for e in result)
     assert result == sorted(result, key=lambda e: (-e.score, e.ticker))
-    assert not match(event_detail('demo:0'), 1)
+    assert not match(event_detail("demo:0"), 1)
     client = TestClient(app)
-    assert client.get('/api/events/demo:0/exposure?radius_km=0').status_code == 422
-    assert client.get('/api/events/missing/exposure').status_code == 404
+    assert client.get("/api/events/demo:0/exposure?radius_km=0").status_code == 422
+    assert client.get("/api/events/missing/exposure").status_code == 404
