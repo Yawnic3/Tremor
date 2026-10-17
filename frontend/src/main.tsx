@@ -1,11 +1,13 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import * as maplibregl from 'maplibre-gl';
+import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
 import type { GeoJSONSource } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import './style.css';
 import { ExposurePanel, type Facility } from './ExposurePanel';
 import { HistoryPanel } from './HistoryPanel';
+maplibregl.setWorkerUrl(workerUrl);
 
 export type EventRecord = {id:string;title:string;type:string;lat:number;lon:number;start:string;severity:number;source:string;url:string;region:string;description:string;synthetic:boolean};
 const kinds:Record<string,string>={earthquake:'Earthquake',fire:'Fire',severe_weather:'Severe weather',strike:'Strike',port_closure:'Port closure',protest:'Protest'};
@@ -15,7 +17,7 @@ function App(){
  const facilityMarkers=useRef<maplibregl.Marker[]>([]);
  const showFacilities=useCallback((facilities:Facility[])=>{facilityMarkers.current.forEach(m=>m.remove());facilityMarkers.current=[];if(!map.current)return;facilities.forEach(f=>{const node=document.createElement('div');node.className='facility-marker';node.textContent='▧';node.title=f.name;facilityMarkers.current.push(new maplibregl.Marker({element:node}).setLngLat([f.lon,f.lat]).addTo(map.current!))});if(facilities.length)map.current.flyTo({center:[facilities[0].lon,facilities[0].lat],zoom:7,duration:900})},[]);
  const [events,setEvents]=useState<EventRecord[]>([]),[selected,setSelected]=useState<EventRecord|null>(null);
- const [kind,setKind]=useState(''),[severity,setSeverity]=useState('1'),[start,setStart]=useState(''),[end,setEnd]=useState('');
+ const [kind,setKind]=useState(''),[severity,setSeverity]=useState('1'),[start,setStart]=useState('2026-09-01'),[end,setEnd]=useState('');
  const [demo,setDemo]=useState(true),[loading,setLoading]=useState(true),[error,setError]=useState(''),[mapError,setMapError]=useState('');
  const [tab,setTab]=useState('exposure'),[method,setMethod]=useState(false),[mapReady,setMapReady]=useState(false);
  const pick=useRef<(id:string)=>void>(()=>{});
@@ -32,6 +34,7 @@ function App(){
  </main></div><footer className="disclaimer"><strong>RESEARCH & EDUCATION ONLY</strong><span>Not financial advice. Correlation is not causation. Historical reactions do not predict future returns.</span><button onClick={()=>setMethod(true)}>Read limitations ↗</button></footer>{method&&<div className="modal-backdrop" onClick={()=>setMethod(false)}><section className="modal" role="dialog" aria-modal="true" aria-label="Methodology and limitations" onClick={e=>e.stopPropagation()}><button className="close" autoFocus onClick={()=>setMethod(false)}>Close ×</button><div className="eyebrow">RESEARCH NOTES</div><h2>Methodology & limitations</h2><p>Events are localized points. Exposure uses facility proximity, not proven operational or financial damage. NWS polygon centroids are approximate; alerts without geometry are omitted.</p><p>Illustrative mode uses fictional events and synthetic prices. Observed mode only uses ingested records. Neither mode supplies investment predictions.</p><p>Market-model studies estimate expected daily returns before an event and sum abnormal returns around it. Sample size, uncertainty, data completeness, overlapping events and selection bias matter.</p></section></div>}</div>
 }
 createRoot(document.getElementById('root')!).render(<React.StrictMode><App/></React.StrictMode>);
+
 
 
 

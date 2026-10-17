@@ -14,6 +14,14 @@ services:
       API_PROXY: http://api:8000
     ports: ["5173:5173"]
     depends_on: [api]
+  scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    profiles: [jobs]
+    command: [python, -m, backend.app.scheduler]
+    volumes: ["tremor-data:/app/data/runtime"]
+    env_file: .env
 volumes:
   tremor-data:
 

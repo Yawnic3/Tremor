@@ -17,9 +17,9 @@ def database(tmp_path, monkeypatch):
 def test_seed_idempotent_and_filters():
     seed()
     seed()
-    assert len(list_events()) == 8
+    assert len(list_events()) == 56
     client = TestClient(app)
-    result = client.get('/api/events?type=fire&severity=4').json()
+    result = client.get('/api/events?type=fire&severity=4&start=2026-09-01').json()
     assert len(result) == 1
     assert result[0]['synthetic']
     assert client.get('/api/events?demo=false').json() == []

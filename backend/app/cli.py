@@ -1,7 +1,7 @@
 import argparse
 import json
 from pathlib import Path
-from datetime import datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from pydantic import HttpUrl
 
 from backend.app.db import save_events
@@ -9,6 +9,7 @@ from backend.app.ingestion import ingest
 from backend.app.models import Event, EventType, region_for
 from backend.app.prices import import_csv, refresh
 from backend.app.exposure import companies
+from backend.app.backfill import backfill
 
 
 def seed() -> None:
@@ -28,12 +29,22 @@ def seed() -> None:
                     description='Fictional event for demonstrating geographic exposure. Not an observed incident.',
                     synthetic=True) for i, (kind, title, lat, lon, severity) in enumerate(records)]
     save_events(events)
+    historical = []
+    for event in events:
+        for j in range(1, 7):
+            historical.append(event.model_copy(update={
+                'id': f'{event.id}:history:{j}', 'title': event.title + ' · historical illustration',
+                'start': event.start - timedelta(days=60*j),
+            }))
+    save_events(historical)
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description='Tremor data operations')
-    parser.add_argument('command', choices=['seed', 'ingest', 'fetch-prices', 'import-prices'])
-    parser.add_argument('--source', choices=['usgs', 'nws', 'all'], default='all')
+    parser.add_argument('command', choices=['seed', 'ingest', 'fetch-prices', 'import-prices', 'backfill'])
+    parser.add_argument('--source', choices=['usgs', 'nws', 'firms', 'gdelt', 'all'], default='all')
+    parser.add_argument('--start', type=date.fromisoformat)
+    parser.add_argument('--end', type=date.fromisoformat)
     parser.add_argument('--ticker', default='SPY')
     parser.add_argument('--file', type=Path)
     parser.add_argument('--provenance', default='user supplied; source unspecified')
@@ -41,6 +52,10 @@ def main() -> None:
     if args.command == 'seed':
         seed()
         print('Illustrative events seeded (idempotent).')
+    elif args.command == 'backfill':
+        if not args.start or not args.end:
+            parser.error('--start and --end required (ISO dates)')
+        print(f'Backfilled {backfill(args.start, args.end)} earthquakes.')
     elif args.command == 'ingest':
         for source in (['usgs', 'nws'] if args.source == 'all' else [args.source]):
             print(json.dumps(ingest(source)))

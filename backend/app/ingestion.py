@@ -6,6 +6,7 @@ import httpx
 
 from backend.app.db import connect, save_events
 from backend.app.models import Event, region_for
+from backend.app.additional_sources import firms, firms_url, gdelt
 
 USGS_URL = 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_week.geojson'
 NWS_URL = 'https://api.weather.gov/alerts/active'
@@ -65,6 +66,12 @@ def ingest(source: str, force: bool = False) -> dict[str, Any]:
             events = usgs(request(USGS_URL).json())
         elif source == 'nws':
             events = nws(request(NWS_URL).json())
+        elif source == 'firms':
+            events = firms(request(firms_url()).text)
+        elif source == 'gdelt':
+            events = gdelt(request('https://api.gdeltproject.org/api/v2/geo/geo', {
+                'query': 'protest locationcc:US', 'mode': 'PointData', 'format': 'GeoJSON', 'timespan': '24h',
+            }).json(), now)
         else:
             raise ValueError('Unknown source')
         count = save_events(events)

@@ -116,7 +116,8 @@ def history(event: Event) -> History:
     # Historical relative to selected event; never look ahead or include the selected event.
     candidates = sorted([e for e in list_events() if e.id != event.id and e.type == event.type
                          and e.region == event.region and e.synthetic == event.synthetic
-                         and e.start < event.start and (event.start.date()-e.start.date()).days > 42],
+                         and e.start < event.start and e.source != 'GDELT news mention'
+                         and (event.start.date()-e.start.date()).days > 42],
                         key=lambda e: e.start, reverse=True)
     market = get_prices('SPY', event.synthetic)
     values: dict[str, list[float]] = {f'[{a:+d},{b:+d}]': [] for a, b in WINDOWS}
