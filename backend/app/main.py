@@ -4,8 +4,9 @@ from fastapi import FastAPI, HTTPException, Query
 
 from backend.app.db import list_events
 from backend.app.models import Event, EventType
+from backend.app.exposure import Company, Exposure, companies, match
 
-app = FastAPI(title="EventMap", version="0.1.0")
+app = FastAPI(title="Tremor", version="0.1.0")
 
 
 @app.get("/api/health")
@@ -42,3 +43,14 @@ def event_detail(event_id: str) -> Event:
         if event.id == event_id:
             return event
     raise HTTPException(404, 'Event not found')
+
+
+@app.get('/api/companies', response_model=list[Company])
+def company_list() -> list[Company]:
+    return companies()
+
+
+@app.get('/api/events/{event_id}/exposure', response_model=list[Exposure])
+def event_exposure(event_id: str, radius_km: float | None = Query(None, ge=1, le=2000)) -> list[Exposure]:
+    return match(event_detail(event_id), radius_km)
+

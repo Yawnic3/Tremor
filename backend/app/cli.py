@@ -28,7 +28,7 @@ def seed() -> None:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description='EventMap data operations')
+    parser = argparse.ArgumentParser(description='Tremor data operations')
     parser.add_argument('command', choices=['seed', 'ingest'])
     parser.add_argument('--source', choices=['usgs', 'nws', 'all'], default='all')
     args = parser.parse_args()
@@ -42,3 +42,4 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
+

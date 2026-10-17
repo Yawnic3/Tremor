@@ -6,7 +6,7 @@ from backend.app.models import Event
 
 
 def connect() -> sqlite3.Connection:
-    path = Path(os.getenv('EVENTMAP_DB', 'data/runtime/eventmap.db'))
+    path = Path(os.getenv('EVENTMAP_DB', 'data/runtime/tremor.db'))
     path.parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(path)
     conn.row_factory = sqlite3.Row
@@ -40,3 +40,4 @@ def list_events(bbox: tuple[float, float, float, float] | None = None) -> list[E
         else:
             rows = conn.execute('SELECT payload FROM events ORDER BY start DESC').fetchall()
     return [Event.model_validate_json(row['payload']) for row in rows]
+

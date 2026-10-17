@@ -46,7 +46,7 @@ def nws(payload: dict[str, Any]) -> list[Event]:
 
 def request(url: str, params: dict[str, str] | None = None) -> httpx.Response:
     with httpx.Client(timeout=30, follow_redirects=True, headers={
-        'User-Agent': os.getenv('EVENTMAP_USER_AGENT', 'EventMap-local-research'),
+        'User-Agent': os.getenv('EVENTMAP_USER_AGENT', 'Tremor-local-research'),
         'Accept': 'application/geo+json,application/json,text/csv',
     }) as client:
         response = client.get(url, params=params)
@@ -74,3 +74,4 @@ def ingest(source: str, force: bool = False) -> dict[str, Any]:
     with connect() as conn:
         conn.execute('INSERT OR REPLACE INTO runs VALUES (?,?,?,?)', (source, now.isoformat(), count, error))
     return {'source': source, 'cached': False, 'count': count, 'error': error}
+
