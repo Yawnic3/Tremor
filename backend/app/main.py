@@ -6,6 +6,7 @@ from backend.app.db import list_events
 from backend.app.models import Event, EventType
 from backend.app.exposure import Company, Exposure, companies, match
 from backend.app.prices import PriceSeries, get_prices
+from backend.app.analytics import History, history
 
 app = FastAPI(title="Tremor", version="0.1.0")
 
@@ -62,4 +63,9 @@ def prices(ticker: str, demo: bool = False) -> PriceSeries:
     if ticker not in {'SPY', *(c.ticker for c in companies())}:
         raise HTTPException(404, 'Company not found')
     return get_prices(ticker, demo)
+
+
+@app.get('/api/events/{event_id}/history', response_model=History)
+def event_history(event_id: str) -> History:
+    return history(event_detail(event_id))
 

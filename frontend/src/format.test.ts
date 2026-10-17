@@ -1,2 +1,3 @@
 import { expect, test } from 'vitest';
-test('frontend harness',()=>expect(1+1).toBe(2));
+import {percent} from './format';
+test('percentage formatting preserves missing and zero',()=>{expect(percent(null)).toBe('—');expect(percent(0)).toBe('0.00%');expect(percent(-.0123)).toBe('-1.23%');expect(percent(.01)).toBe('+1.00%')});
