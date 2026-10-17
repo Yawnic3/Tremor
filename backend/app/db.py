@@ -1,14 +1,17 @@
 import os
 import sqlite3
+from contextlib import contextmanager
+from collections.abc import Iterator
 from pathlib import Path
 
 from backend.app.models import Event
 
 
-def connect() -> sqlite3.Connection:
+@contextmanager
+def connect() -> Iterator[sqlite3.Connection]:
     path = Path(os.getenv('EVENTMAP_DB', 'data/runtime/tremor.db'))
     path.parent.mkdir(parents=True, exist_ok=True)
-    conn = sqlite3.connect(path)
+    conn = sqlite3.connect(path, timeout=30)
     conn.row_factory = sqlite3.Row
     conn.executescript('''
         PRAGMA journal_mode=WAL;
@@ -19,7 +22,11 @@ def connect() -> sqlite3.Connection:
         CREATE TABLE IF NOT EXISTS runs (
             source TEXT PRIMARY KEY, fetched_at TEXT, count INTEGER, error TEXT);
     ''')
-    return conn
+    try:
+        with conn:
+            yield conn
+    finally:
+        conn.close()
 
 
 def save_events(events: list[Event]) -> int:
