@@ -1,11 +1,14 @@
 import argparse
 import json
+from pathlib import Path
 from datetime import datetime, timezone
 from pydantic import HttpUrl
 
 from backend.app.db import save_events
 from backend.app.ingestion import ingest
 from backend.app.models import Event, EventType, region_for
+from backend.app.prices import import_csv, refresh
+from backend.app.exposure import companies
 
 
 def seed() -> None:
@@ -29,15 +32,29 @@ def seed() -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description='Tremor data operations')
-    parser.add_argument('command', choices=['seed', 'ingest'])
+    parser.add_argument('command', choices=['seed', 'ingest', 'fetch-prices', 'import-prices'])
     parser.add_argument('--source', choices=['usgs', 'nws', 'all'], default='all')
+    parser.add_argument('--ticker', default='SPY')
+    parser.add_argument('--file', type=Path)
+    parser.add_argument('--provenance', default='user supplied; source unspecified')
     args = parser.parse_args()
     if args.command == 'seed':
         seed()
         print('Illustrative events seeded (idempotent).')
-    else:
+    elif args.command == 'ingest':
         for source in (['usgs', 'nws'] if args.source == 'all' else [args.source]):
             print(json.dumps(ingest(source)))
+    else:
+        ticker = args.ticker.upper()
+        if ticker not in {'SPY', *(c.ticker for c in companies())}:
+            parser.error('Ticker must be SPY or a curated company')
+        if args.command == 'import-prices':
+            if not args.file:
+                parser.error('--file required (date,adjusted_close CSV)')
+            series = import_csv(ticker, args.file, args.provenance)
+        else:
+            series = refresh(ticker)
+        print(f'{series.ticker}: {len(series.prices)} rows; {series.provider}')
 
 
 if __name__ == '__main__':

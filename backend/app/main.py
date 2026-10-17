@@ -5,6 +5,7 @@ from fastapi import FastAPI, HTTPException, Query
 from backend.app.db import list_events
 from backend.app.models import Event, EventType
 from backend.app.exposure import Company, Exposure, companies, match
+from backend.app.prices import PriceSeries, get_prices
 
 app = FastAPI(title="Tremor", version="0.1.0")
 
@@ -53,4 +54,12 @@ def company_list() -> list[Company]:
 @app.get('/api/events/{event_id}/exposure', response_model=list[Exposure])
 def event_exposure(event_id: str, radius_km: float | None = Query(None, ge=1, le=2000)) -> list[Exposure]:
     return match(event_detail(event_id), radius_km)
+
+
+@app.get('/api/companies/{ticker}/prices', response_model=PriceSeries)
+def prices(ticker: str, demo: bool = False) -> PriceSeries:
+    ticker = ticker.upper()
+    if ticker not in {'SPY', *(c.ticker for c in companies())}:
+        raise HTTPException(404, 'Company not found')
+    return get_prices(ticker, demo)
 
