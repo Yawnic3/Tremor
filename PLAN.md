@@ -13,7 +13,7 @@ Verify official current documentation before implementing network adapters. USGS
 FastAPI/Pydantic: typed OpenAPI and validation; uvicorn: ASGI server; httpx: bounded upstream HTTP; numpy: reliable linear algebra; pytest/ruff/mypy: deterministic testing and quality checks. React/ReactDOM: interactive UI; MapLibre: requested clustered map; Vite/TypeScript: build and type checking; Vitest: frontend logic tests; ESLint: frontend lint. Use native SVG for price charts to avoid another chart dependency. Standard-library sqlite3 for durable cache, CSV and scheduler commands; no ORM or scheduler dependency needed.
 
 ## Phases and acceptance checklist
-- [ ] 1. Scaffolding: health endpoint, empty map, Compose, CI, lint/type/test commands; start app and pass checks; commit.
+- [x] 1. Scaffolding: health endpoint, empty map, Compose, CI, lint/type/test commands; start app and pass checks; commit. Docker execution is blocked by missing Docker; native equivalent used.
 - [ ] 2. Events: idempotent USGS/NWS adapters, filters and API, failure/rate-limit handling, map events; tests and running-app checks; commit.
 - [ ] 3. Exposure: 50 curated US-listed companies, provenance/confidence, spatial matching, ranked panel and facility display; tests and running-app checks; commit.
 - [ ] 4. Prices: swappable provider, persistent cache, CSV import/demo distinction, event-marked chart; tests and running-app checks; commit.
@@ -31,3 +31,5 @@ FastAPI/Pydantic: typed OpenAPI and validation; uvicorn: ASGI server; httpx: bou
 
 ## Validation log
 Plan created before application code. Each phase records actual checks and any blocked criteria here.
+
+Phase 1: backend pytest, ruff, mypy and frontend test/lint/build passed; API health and Vite serve checked. TestClient requires an unsandboxed local socket on this host. npm audit found vulnerable initial MapLibre/Vitest versions; upgraded to MapLibre 6.14 and Vitest 5.0.5 (zero reported vulnerabilities). Git ignores cover secrets, environments, caches, builds, logs and runtime data; Docker context has matching exclusions.
